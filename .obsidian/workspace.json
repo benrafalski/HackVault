@@ -1,0 +1,251 @@
+{
+  "main": {
+    "id": "d2affa2d94ed3f43",
+    "type": "split",
+    "children": [
+      {
+        "id": "e9d734d892e85e0f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ba5f84daa88bb248",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "New tab"
+            }
+          }
+        ]
+      },
+      {
+        "id": "1899c9a34f3eac52",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "a3505c20a8f176c0",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c2db0dbe8c9b3c58",
+    "type": "split",
+    "children": [
+      {
+        "id": "3c27b1bfecb124de",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f109d7484a14e6d0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "ed0bdd31bad04dcd",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "0172818d256a4b9f",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "5690e05339b93635",
+    "type": "split",
+    "children": [
+      {
+        "id": "a5c578e9613e5157",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "26896829d5d90656",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "f7cd685ea55484f1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "abd846b0e6023a9a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "c0c8bda1318fdd51",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "54a2c4b989a3893d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          },
+          {
+            "id": "78af775834a01422",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "publish:Publish changes...": false,
+      "obsidian-git:Open Git source control": false
+    }
+  },
+  "active": "ba5f84daa88bb248",
+  "lastOpenFiles": [
+    "_meta/Test-FastAPIExamples.ps1",
+    "_meta/Templates/Course Drafts.json",
+    "_meta/Fill-Course.ps1",
+    "index.md",
+    "AGENTS.md",
+    "Windows/07 Defense/Windows Hardening Baselines/Windows Hardening Baselines.md",
+    "Windows/07 Defense/Windows Hardening Baselines/Windows Hardening Baselines Security.md",
+    "Windows/07 Defense/Sysmon/Sysmon.md",
+    "Windows/07 Defense/ETW-TI/ETW-TI.md",
+    "Windows/07 Defense/Sysmon/Sysmon Security.md",
+    "Windows/07 Defense/ETW-TI/ETW-TI Security.md",
+    "Windows/07 Defense/Detection Engineering/Detection Engineering Security.md",
+    "Windows/07 Defense/Detection Engineering/Detection Engineering.md",
+    "Windows/07 Defense/Defender and EDR Architecture/Defender and EDR Architecture.md",
+    "Windows/07 Defense/Defender and EDR Architecture/Defender and EDR Architecture Security.md",
+    "Windows/07 Defense/ASR Rules/ASR Rules.md",
+    "Windows/07 Defense/ASR Rules/ASR Rules Security.md",
+    "Windows/07 Defense/AppLocker and WDAC/AppLocker and WDAC.md",
+    "Windows/07 Defense/AppLocker and WDAC/AppLocker and WDAC Security.md",
+    "Windows/03 Development/Win32 Programming/Win32 Programming.md",
+    "Windows/03 Development/Win32 Programming/Win32 Programming Security.md",
+    "Windows/00 Foundations/x64 Assembly and Windows ABI/x64 Assembly and Windows ABI.md",
+    "Windows/00 Foundations/x64 Assembly and Windows ABI/x64 Assembly and Windows ABI Security.md",
+    "Windows/03 Development/PowerShell/PowerShell.md",
+    "Windows/03 Development/PowerShell/PowerShell Security.md",
+    "Windows/03 Development/Driver Development/Driver Development.md",
+    "Windows/03 Development/Driver Development/Driver Development Security.md",
+    "Windows/03 Development/DotNet and CLR/DotNet and CLR.md",
+    "Windows/07 Defense/Windows Hardening Baselines",
+    "Windows/07 Defense/Sysmon",
+    "Windows/07 Defense/ETW-TI",
+    "Windows/07 Defense/Detection Engineering",
+    "Windows/07 Defense/Defender and EDR Architecture",
+    "Windows/07 Defense/ASR Rules",
+    "Windows/07 Defense/AppLocker and WDAC",
+    "Windows/03 Development/Win32 Programming"
+  ]
+}
