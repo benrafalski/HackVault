@@ -34,7 +34,165 @@ an in-memory test cannot verify. Teach here without editing files or inventing
 execution evidence; end with worked failure-diagnosis questions.
 ```
 
-## Cheatsheet
+## Cheatsheetv2
+### Overview
+#### Security goals
+1. **Confidentiality:** encryption (_AES_ or _RSA_) and key exchanges (_DHE_ or _ECDHE_)
+2. **Integrity:** hash functions (_SHA-2_ or _SHA-3_)
+3. **Authenticity:** MACs (_HMAC_) or authenticated encryption (_GCM_)
+4. **Non-Repudiation:** digital signatures (_RSA-PSS_, *ECDSA*, or _Ed25519_)
+#### History
+
+| Year | What    | Who      | Status                                   |
+| :--- | :------ | :------- | :--------------------------------------- |
+| 1994 | SSL 1.0 | Netscape | Never publicly released (security flaws) |
+| 1995 | SSL 2.0 | Netscape | Deprecated (security flaws)              |
+| 1996 | SSL 3.0 | Netscape | Deprecated (security flaws)              |
+| 1999 | TLS 1.0 | IETF     | Deprecated (security flaws)              |
+| 2006 | TLS 1.1 | IETF     | Deprecated (security flaws)              |
+| 2008 | TLS 1.2 | IETF     | Active support                           |
+| 2018 | TLS 1.3 | IETF     | Recommended / Active support             |
+#### Protocol structure
+1. **Handshake**: peers are authenticated and agree on a shared master secret and cipher suite
+2. **Application Data**: information transmitted is symmetrically encrypted and authenticated using keys derived from the master secret
+3. **Connection Closure**: used to close the connection
+
+> [!warning] Errors
+Any errors are treated as fatal errors (error message and the connection is closed)
+#### Cipher Suites
+##### TLS 1.2 Example 
+`TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA256`
+*   **ECDHE** → master secret
+*   **RSA:** → authenticate peers
+*   **AES_256_CBC:** → encrypt application data
+*   **SHA256:** → authenticate application data (HMAC) and key derivation from master secret (PRF)
+##### **TLS 1.3 Example**
+`TLS_AES_256_GCM_SHA384`
+*   **AES_256_GCM:** → encrypt and authenticate application data (AEAD)
+*   **SHA384:** → key derivation from master secret (HKDF)
+
+> [!tip] Key Differences
+TLS 1.3 cipher suites are significantly simplified since authentication and key exchange methods are often implied or derived from certificates (no longer explicitly bundled into the cipher suite string like TLS 1.2)
+### Handshake and Record Layer
+#### TLS Record Layer
+| Byte Offset | Field Name         | Size    | Description / Common Values                                                                                                                                                                                                 |
+| ----------- | ------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`0`**     | **Content Type**   | 1 Byte  | Identifies the higher-level protocol. Can be: <br><br>Change Cipher Spec (`0x14`)<br>Alert (`0x15`)<br>Handshake (`0x16`)<br>Application Data (`0x17`)<br>Heartbeat (`0x18`)                                                |
+| **`1 - 2`** | **Legacy Version** | 2 Bytes | Identifies the TLS version. For TLS 1.3, this is locked at `0x0303` (TLS 1.2) for compatibility. Can be: <br><br>`0x0300` (SSL 3.0)<br>`0x0301` (TLS 1.0)<br>`0x0302` (TLS 1.1)<br>`0x0303` (TLS 1.2)<br>`0x0304` (TLS 1.3) |
+| **`3 - 4`** | **Length**         | 2 Bytes | The length (in bytes) of the following payload/fragment. Max value is 2¹⁴ (16,384) bytes.                                                                                                                                   |
+> [!note] TLS 1.3 Encrypted Record Changes
+> In TLS 1.3, to protect user privacy and obscure metadata, the record structure changes after encryption is activated:
+> - *Obfuscated Content Type*: The header's Content Type field is hardcoded to 0x17 (Application Data) for all encrypted records, hiding whether the payload is a handshake, alert, or actual application data.
+> - *Inner Plaintext*: The real Content Type byte is appended to the end of the plaintext payload before encryption.
+> - *Zero Padding*: Zero bytes can be appended after the real Content Type to pad the packet length and hide the true payload size from eavesdroppers.
+#### TLS 1.2 Handshake
+![[Pasted image 20261118164513.png]]
+
+```
+ Client                                                Server
+
+   |                                                     |
+   | ------------ 1. Client Hello (RTT 1) -------------> |
+   |                                                     |
+   | <----------- 2. Server Hello ---------------------- |
+   | <----------- 3. Certificate ----------------------- |
+   | <----------- 4. Server Key Exchange (ECDHE) ------- |
+   | <----------- 5. Server Hello Done ----------------- |
+   |                                                     |
+   | ------------ 6. Client Key Exchange (RTT 2) ------> |
+   | ------------ 7. [Change Cipher Spec] -------------> |
+   | ------------ 8. Finished -------------------------> |
+   |                                                     |
+   | <----------- 9. [Change Cipher Spec] -------------- |
+   | <---------- 10. Finished -------------------------- |
+   |                                                     |
+  [=== Handshake Complete. Encrypted Session Begins ===]
+```
+##### RTT 1
+1. **Client Hello**: client sends its highest supported **TLS Version** (`0x0303` for 1.2), a 32-byte **Client Random** string, a list of supported **Cipher Suites** (200+ to choose from), and optional extensions.
+2. **Server Hello**: server replies with the **Selected TLS Version**, its own 32-byte **Server Random** string, and the **Chosen Cipher Suite** from the client's list.
+3. **Certificate**: server sends its TLS certificate chain.
+4. **Server Key Exchange**: _(Optional, but used for DH/ECDHE)_ The server sends its public key parameters (e.g., EC Curve info) signed with its private key to enable Forward Secrecy.
+5. **Server Hello Done**: server signals it is finished for this phase.
+##### RTT 2
+6. **Client Key Exchange**: The client validates the server's certificate, then generates a **Pre-Master Secret** and shares its own public key parameters (or encrypts the secret using the server's public key if using RSA). 
+> [!note] Derivation 
+> Both parties independently combine the **Client Random**, **Server Random**, and **Pre-Master Secret** using a Pseudo-Random Function (PRF) to calculate the identical **Master Secret** and session keys.
+7. **Change Cipher Spec**: A 1-byte notification signaling that all subsequent data sent by the client will be encrypted using the newly derived session keys.
+8. **Finished**: An encrypted hash of all previous handshake messages, ensuring no tamper or man-in-the-middle downgrade occurred.
+9. **Change Cipher Spec**: The server switches its transmission status to encrypted
+10. **Finished**: The server sends its encrypted verification hash
+##### Session Resumption
+- Client sends ID of previous session in their Client Hello and if the server validates the ID, the master secret from the previous session will be reused (reduces the handshake to RTT 1)
+- **Security implications**: If the master secret from the previous session is compromised then session resumption is insecure (puts forward secrecy at risk). If session resumption is needed to be enabled at all, then session IDs should have a short lifetime (<= 24h) closed parentheses.
+##### Debug Commands
+```bash
+# Test a TLS 1.2 connection
+openssl s_client -connect google.com:443 -tls1_2 -brief
+# View the full handshake
+openssl s_client -connect google.com:443 -tls1_2 -msg
+```
+#### TLS 1.3 Handshake
+![[Pasted image 20261118165825.png]]
+
+```
+Client                                                    Server
+
+  |                                                           |
+  |--- ClientHello ------------------------------------------>|
+  |    (Supported versions, Cipher suites, Key Share [X25519])|
+  |                                                           |
+  |<-- ServerHello -------------------------------------------|
+  |    (Selected version, Cipher suite, Key Share)            |
+  |<-- EncryptedExtensions -----------------------------------|
+  |<-- Certificate (Server auth) -----------------------------|
+  |<-- CertificateVerify (Signature over handshake) ----------|
+  |<-- Finished (MAC of transcript) --------------------------|
+  |    [Handshake keys active]                                |
+  |                                                           |
+  |--- Finished (MAC of transcript) ------------------------->|
+  |    [Application keys active]                              |
+  |                                                           |
+  |<== Encrypted Application Data (1-RTT reached) ===========>|
+```
+##### RTT 1
+1. **Client Hello**: client sends its highest supported **TLS Version** (via the `supported_versions` extension), a 32-byte **Client Random** string, a list of supported **AEAD Cipher Suites** (only five to choose from), and a guessing **Key Share** extension (e.g., its public ephemeral `X25519` key).
+2. **Server Hello**: server replies with the **Selected TLS Version** (`0x0304`), its own 32-byte **Server Random** string, the **Chosen Cipher Suite**, and its matching **Key Share** extension to complete the cryptographic key exchange.
+
+> [!note] Derivation  
+> Both parties immediately combine the **Client Key Share** and **Server Key Share** via HKDF to derive the **Handshake Secret** and initial encryption keys. All subsequent server messages below are sent fully encrypted.
+
+3. **Encrypted Extensions**: server sends its configuration options and extensions (like ALPN or SNI confirmations) securely under the new handshake encryption.
+4. **Certificate**: server sends its TLS certificate chain, completely hidden from cleartext eavesdroppers.
+5. **Certificate Verify**: server sends a digital signature over the entire handshake transcript up to this point, proving ownership of the private key matching the certificate.
+6. **Finished**: server sends a MAC verifying the cryptographic integrity of its flight and the handshake transcript.
+7. **Finished**: client validates the server's certificate and signature, then sends its own MAC of the entire transcript to confirm successful, untampered key derivation.
+##### Pre-Shared Key (PSK)
+- Client sends a label corresponding to a previously established PSK along with its second message to the server -> both client and server use an HKDF to derive an early secret from this shared key (reduces the handshake to RTT 0, i.e. immediate encryption)
+- **Security implications**: If a PSK is used without DHE key exchange means application data encrypted with keys derived from the PSK and non-confidential randomness -> no forward secrecy and no replay protection
+##### Debug Commands
+```bash
+# Test a TLS 1.3 connection
+openssl s_client -connect google.com:443 -tls1_3 -brief
+# View the full handshake
+openssl s_client -connect google.com:443 -tls1_3 -msg
+```
+### X.509 certificates
+### TLS 1.2 master secret, PSK, encryption keys & PRF
+### TLS 1.3 master secret, PSK, encryption keys & HKDF
+
+### Attacks
+#### Logjam
+#### LUCKY13
+#### Sweet32
+#### CRIME
+#### Heartbleed
+
+
+
+
+
+## Cheatsheetv1
 
 ### Handshake and Record Layer
 
