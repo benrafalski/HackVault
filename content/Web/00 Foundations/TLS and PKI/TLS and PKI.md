@@ -34,7 +34,7 @@ an in-memory test cannot verify. Teach here without editing files or inventing
 execution evidence; end with worked failure-diagnosis questions.
 ```
 
-## Cheatsheetv2
+## Cheatsheet
 ### Overview
 #### Security goals
 1. **Confidentiality:** encryption (_AES_ or _RSA_) and key exchanges (_DHE_ or _ECDHE_)

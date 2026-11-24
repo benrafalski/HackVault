@@ -15,10 +15,21 @@ $files = @(Get-ChildItem -LiteralPath $VaultRoot -Filter '*.md' -Recurse -File |
 $duplicates = @($files | Group-Object BaseName | Where-Object Count -gt 1)
 foreach ($duplicate in $duplicates) { $issues.Add("Duplicate basename: $($duplicate.Name)") }
 $publicNotes = @{}
+$publicAssets = @{}
 $metadataByName = @{}
 $textByName = @{}
 $requiredFields = @('title', 'aliases', 'tags', 'domain', 'phase', 'type', 'status', 'pair', 'updated')
 $revisedCount = 0
+
+$assetFiles = @(Get-ChildItem -LiteralPath $VaultRoot -Recurse -File | Where-Object {
+    $_.Extension -ne '.md' -and $_.FullName -notmatch '[\\/]\.obsidian[\\/]'
+})
+foreach ($asset in $assetFiles) {
+    $relative = [System.IO.Path]::GetRelativePath($VaultRoot, $asset.FullName).Replace('\', '/')
+    if ($relative -match '^(Private/|_meta/)' -or $asset.Name.StartsWith('.')) { continue }
+    $publicAssets[$asset.Name] = $asset
+    $publicAssets[$relative] = $asset
+}
 
 function Get-Scalar {
     param([string]$Value)
@@ -101,6 +112,9 @@ foreach ($name in $publicNotes.Keys) {
         $parts = $destination -split '#', 2
         $target = $parts[0]
         if (-not $target) { $target = $name }
+        if ($publicAssets.ContainsKey($target)) {
+            continue
+        }
         if (-not $publicNotes.ContainsKey($target)) {
             $issues.Add("Unresolved or excluded link in ${name}: $destination")
             continue
